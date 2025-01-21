@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import logo from '../assets/splashlogo1.jpeg'
 import calpolIcon from '../assets/calpol.png'; 
 const SplashScreen = ({navigation}) => {
   useEffect(() => {
@@ -12,15 +13,7 @@ const SplashScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-     
-      
-      <Text style={styles.headerText}>Home</Text>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => console.log('Retail Button Pressed')}>
-        <Text style={styles.buttonText}>Retail. Tech</Text>
-      </TouchableOpacity>
+     <Image source={logo} style={styles.splashLogo} />
       <Image source={calpolIcon} style={styles.logo} />
     </View>
   );
@@ -29,10 +22,16 @@ const SplashScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#dc3545', 
+    backgroundColor: 'white', 
     alignItems: 'center',
     justifyContent: 'center',
     gap: 100,
+  },
+  splashLogo:
+  {
+    width: 320,
+    height: 320,
+    resizeMode: 'contain',
   },
   logo: {
     width: 120,

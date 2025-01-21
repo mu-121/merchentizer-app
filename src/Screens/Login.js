@@ -35,7 +35,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
 
         {/* Company Code Field */}
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <Text style={styles.label}>Company Code</Text>
           <TextInput
             style={styles.input}
@@ -44,7 +44,7 @@ const LoginScreen = ({ navigation }) => {
             value={companyCode}
             onChangeText={setCompanyCode}
           />
-        </View>
+        </View> */}
 
         {/* Username Field */}
         <View style={styles.inputContainer}>

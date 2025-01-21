@@ -9,6 +9,8 @@ import {
   Alert,
   Image,
   Animated,
+  Modal,
+  FlatList,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -16,7 +18,12 @@ import Geolocation from '@react-native-community/geolocation';
 import uploadIcon from '../assets/uploadIcon.png';
 import storeIcon from '../assets/storeIcons2.png';
 import CameraIcon from '../assets/camaraIcon.png';
-const SuccessfulStoreScreen = ({navigation}) => {
+import profileIcon from '../assets/store.jpeg';
+import tickIcon from '../assets/tickIcon.png';
+import StoreIcon2 from '../assets/storeIcons2.png'
+import homeIcon1 from '../assets/homeIcon.png'
+import logoutIcon from '../assets/logout.png'
+const NewStoreScreen = ({navigation}) => {
   const [region, setRegion] = useState('');
   const [posman, setPosman] = useState('');
   const [checklist, setChecklist] = useState('');
@@ -34,6 +41,7 @@ const SuccessfulStoreScreen = ({navigation}) => {
   const [contact, setContact] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [stock, setStocks] = useState('');
   const [storeLogo, setStoreLogo] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -43,6 +51,67 @@ const SuccessfulStoreScreen = ({navigation}) => {
   const [storeImages, setStoreImages] = useState([]);
   const [shelfImages, setShelfImages] = useState([]);
   const [focusAnim] = useState(new Animated.Value(1));
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [checkedItems, setCheckedItems] = useState([]);
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+  const [isStockOpen, setIsStockOpen] = useState(false);
+  const [selectedStocks, setSelectedStocks] = useState([]);
+  const [hoveredButton, setHoveredButton] = useState(null);
+  const navigateToStores = () => {
+    navigation.navigate('HomeScreen');
+  };
+  const navigateToHome = () => {
+    navigation.navigate('HomePage');
+  };
+  const navigateToLogout = () => {
+    navigation.navigate('Login');
+  };
+  const stockOptions = [
+    {label: 'Calpol Tab', value: 'Calpol Tab'},
+    {label: 'Calpol Syrup', value: 'Calpol Syrup'},
+    {label: 'Calpol Drops', value: 'Calpol Drops'},
+  ];
+
+  const handleStockToggle = value => {
+    setSelectedStocks(prev =>
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value],
+    );
+  };
+
+  const checklistOptions = [
+    {label: 'Counter top', value: 'Counter top'},
+    {label: 'Hanger', value: 'Hanger'},
+    {label: 'Poster', value: 'Poster'},
+    {label: 'Bunting', value: 'Bunting'},
+  ];
+
+  const handleItemToggle = value => {
+    setCheckedItems(prev =>
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value],
+    );
+  };
+
+  const items = [
+    {label: 'Counter top', value: 'Counter top'},
+    {label: 'Hanger', value: 'Hanger'},
+    {label: 'Poster', value: 'Poster'},
+    {label: 'Bunting', value: 'Bunting'},
+  ];
+
+  const toggleSelection = value => {
+    setSelectedItems(prev =>
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value],
+    );
+  };
+
   const handleImagePick = async type => {
     const options = {
       mediaType: 'photo',
@@ -108,12 +177,14 @@ const SuccessfulStoreScreen = ({navigation}) => {
   };
 
   const handleSubmit = () => {
-    if (!region || !city || !town || !supervisor || !ownerName || !contact) {
-      Alert.alert('Error', 'Please fill all required fields');
-      return;
-    }
-
-    Alert.alert('Success', 'Store successfully created!');
+    // if (!region || !city || !town || !supervisor || !ownerName || !contact) {
+    //   Alert.alert('Error', 'Please fill all required fields');
+    //   return;
+    // }
+    setModalVisible(true);
+  };
+  const handleCloseModal = () => {
+    setModalVisible(false); // Close the modal
   };
   const focusAnimNewAddress = useRef(new Animated.Value(1)).current;
   const focusAnimRemarks = useRef(new Animated.Value(1)).current;
@@ -129,557 +200,447 @@ const SuccessfulStoreScreen = ({navigation}) => {
   const focusAnimPopMarketName = useRef(new Animated.Value(1)).current;
   const focusAnimOwnerName = useRef(new Animated.Value(1)).current;
   const focusAnimContact = useRef(new Animated.Value(1)).current;
+  const focusAnimStore = useRef(new Animated.Value(1)).current;
   const focusAnimPosman = useRef(new Animated.Value(1)).current;
   const focusAnimChecklist = useRef(new Animated.Value(1)).current;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.summarycontainer}>
-        <Image source={storeIcon} style={styles.storeIcon} />
-        <Text style={styles.title}>Store One</Text>
+        <View style={styles.container_store}>
+          <Image source={profileIcon} style={styles.profileImage} />
+          <Text style={styles.title}>Shaheen Chemists </Text>
+          <Text style={styles.merchertizername}>Saddar</Text>
+        </View>
       </View>
-      <View style={styles.card}>
-        {/* Region */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Region</Text>
-          <View style={styles.dropdown}>
-            <Picker
-              selectedValue={region}
-              onValueChange={itemValue => setRegion(itemValue)}
-              style={styles.picker}>
-              <Picker.Item label="Select Region" value="" />
-              <Picker.Item label="Region 1" value="region1" />
-              <Picker.Item label="Region 2" value="region2" />
-              <Picker.Item label="Region 3" value="region3" />
-            </Picker>
+
+      <View style={styles.cardmain}>
+        <View style={styles.labelsContainer}>
+          {/* Existing fields */}
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Region</Text>
+            <Text style={styles.field}>Punjab</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>City</Text>
+            <Text style={styles.field}>Rawalpindi</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Town</Text>
+            <Text style={styles.field}>Saddar</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Project</Text>
+            <Text style={styles.field}>Project Alpha</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Supervisor</Text>
+            <Text style={styles.field}>John Doe</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Merchandiser</Text>
+            <Text style={styles.field}>Jane Smith</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>ID</Text>
+            <Text style={styles.field}>12345</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Locality</Text>
+            <Text style={styles.field}>F-10</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Sub Locality</Text>
+            <Text style={styles.field}>Block A</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>Brick Code Name</Text>
+            <Text style={styles.field}>Brick-789</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>PoP Code</Text>
+            <Text style={styles.field}>PoP-456</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>POP Name</Text>
+            <Text style={styles.field}>POP Alpha</Text>
+          </View>
+          <View style={styles.labelFieldPair}>
+            <Text style={styles.label}>POP Market Name</Text>
+            <Text style={styles.field}>Market One</Text>
           </View>
         </View>
+        <View style={styles.card}>
+          <Text style={styles.titleForn}>FullFilled By Merchandiser</Text>
+          {/* Landmark */}
 
-        {/* City */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>City</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimCity}]},
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter City"
-              value={city}
-              onChangeText={setCity}
-              onFocus={() =>
-                Animated.spring(focusAnimCity, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimCity, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Town */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Town</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimTown}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Town"
-              value={town}
-              onChangeText={setTown}
-              onFocus={() =>
-                Animated.spring(focusAnimTown, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimTown, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Supervisor */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Supervisor</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimSupervisor}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Supervisor"
-              value={supervisor}
-              onChangeText={setSupervisor}
-              onFocus={() =>
-                Animated.spring(focusAnimSupervisor, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimSupervisor, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-        {/* Locality */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Locality</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimLocality}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Locality"
-              value={locality}
-              onChangeText={setLocality}
-              onFocus={() =>
-                Animated.spring(focusAnimLocality, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimLocality, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Sub Locality */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Sub Locality</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimSubLocality}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Sub Locality"
-              value={subLocality}
-              onChangeText={setSubLocality}
-              onFocus={() =>
-                Animated.spring(focusAnimSubLocality, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimSubLocality, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Landmark */}
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Landmark</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimLandmark}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Landmark"
-              value={landmark}
-              onChangeText={setLandmark}
-              onFocus={() =>
-                Animated.spring(focusAnimLandmark, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimLandmark, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Bricks Code Name */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Bricks Code Name</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimBricksCodeName}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Bricks Code Name"
-              value={bricksCodeName}
-              onChangeText={setBricksCodeName}
-              onFocus={() =>
-                Animated.spring(focusAnimBricksCodeName, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimBricksCodeName, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-        {/* Pop Code */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Pop Code</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimPopCode}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Pop Code"
-              value={popCode}
-              onChangeText={setPopCode}
-              onFocus={() =>
-                Animated.spring(focusAnimPopCode, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimPopCode, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Pop Name */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Pop Name</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimPopName}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Pop Name"
-              value={popName}
-              onChangeText={setPopName}
-              onFocus={() =>
-                Animated.spring(focusAnimPopName, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimPopName, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Pop Market Name */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Pop Market Name</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimPopMarketName}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Pop Market Name"
-              value={popMarketName}
-              onChangeText={setPopMarketName}
-              onFocus={() =>
-                Animated.spring(focusAnimPopMarketName, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimPopMarketName, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-
-        {/* Owner Name */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Owner Name</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimOwnerName}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Owner Name"
-              value={ownerName}
-              onChangeText={setOwnerName}
-              onFocus={() =>
-                Animated.spring(focusAnimOwnerName, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimOwnerName, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-        {/* Contact */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Contact</Text>
-          <Animated.View
-            style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimContact}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Contact Number"
-              value={contact}
-              onChangeText={setContact}
-              onFocus={() =>
-                Animated.spring(focusAnimContact, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimContact, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Posm Deployed</Text>
-          <View style={styles.dropdown}>
-            <Picker
-              selectedValue={posman}
-              onValueChange={itemValue => setPosman(itemValue)}
-              style={styles.picker}>
-              <Picker.Item label="Select Posm" value="" />
-              <Picker.Item label="Counter top" value="region1" />
-              <Picker.Item label="Hanger" value="region2" />
-              <Picker.Item label="Poster" value="region3" />
-              <Picker.Item label="Bunting" value="region4" />
-            </Picker>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Landmark</Text>
+            <Animated.View
+              style={[
+                styles.inputWrapper,
+                {transform: [{scale: focusAnimLandmark}]}, // Apply scaling animation
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Landmark"
+                value={landmark}
+                onChangeText={setLandmark}
+                onFocus={() =>
+                  Animated.spring(focusAnimLandmark, {
+                    toValue: 1.1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onBlur={() =>
+                  Animated.spring(focusAnimLandmark, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+              />
+            </Animated.View>
           </View>
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Store Checklist</Text>
-          <View style={styles.dropdown}>
-            <Picker
-              selectedValue={checklist}
-              onValueChange={itemValue => setChecklist(itemValue)}
-              style={styles.picker}>
-              <Picker.Item label="Select Checklist" value="" />
-              <Picker.Item label="Counter top" value="region1" />
-              <Picker.Item label="Hanger" value="region2" />
-              <Picker.Item label="Poster" value="region3" />
-              <Picker.Item label="Bunting" value="region4" />
-            </Picker>
+
+          {/* Bricks Code Name */}
+
+          {/* Owner Name */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Owner Name</Text>
+            <Animated.View
+              style={[
+                styles.inputWrapper,
+                {transform: [{scale: focusAnimOwnerName}]}, // Apply scaling animation
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Owner Name"
+                value={ownerName}
+                onChangeText={setOwnerName}
+                onFocus={() =>
+                  Animated.spring(focusAnimOwnerName, {
+                    toValue: 1.1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onBlur={() =>
+                  Animated.spring(focusAnimOwnerName, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+              />
+            </Animated.View>
           </View>
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label1}>Shop Facia/Consent Form Pictures</Text>
-          
+          {/* Contact */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Contact</Text>
+            <Animated.View
+              style={[
+                styles.inputWrapper,
+                {transform: [{scale: focusAnimContact}]}, // Apply scaling animation
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Contact Number"
+                value={contact}
+                onChangeText={setContact}
+                onFocus={() =>
+                  Animated.spring(focusAnimContact, {
+                    toValue: 1.1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onBlur={() =>
+                  Animated.spring(focusAnimContact, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+              />
+            </Animated.View>
+          </View>
+
+          {/* New Address */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>New Address</Text>
+            <Animated.View
+              style={[styles.inputWrapper, {transform: [{scale: focusAnim}]}]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter New Address"
+                value={newAddress}
+                onChangeText={setNewAddress}
+                onFocus={() =>
+                  Animated.spring(focusAnim, {
+                    toValue: 1.1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onBlur={() =>
+                  Animated.spring(focusAnim, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+              />
+            </Animated.View>
+          </View>
+          {/* Remarks */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Remarks</Text>
+            <Animated.View
+              style={[
+                styles.inputWrapper,
+                {transform: [{scale: focusAnimRemarks}]}, // Apply scaling animation
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Remarks"
+                value={remarks}
+                onChangeText={setRemarks}
+                onFocus={() =>
+                  Animated.spring(focusAnimRemarks, {
+                    toValue: 1.1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+                onBlur={() =>
+                  Animated.spring(focusAnimRemarks, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }).start()
+                }
+              />
+            </Animated.View>
+          </View>
+          <View style={styles.container}>
+            <Text style={styles.label}>Stock Availabilty</Text>
+            {/* Dropdown Trigger */}
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setIsStockOpen(prev => !prev)}>
+              <Text style={styles.dropdownText}>
+                {selectedStocks.length > 0
+                  ? `Selected: ${selectedStocks.join(', ')}`
+                  : 'Select Stock Items'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Dropdown List */}
+            {isStockOpen && (
+              <View style={styles.dropdownList}>
+                <FlatList
+                  data={stockOptions}
+                  keyExtractor={item => item.value}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.item,
+                        selectedStocks.includes(item.value) &&
+                          styles.selectedItem,
+                      ]}
+                      onPress={() => handleStockToggle(item.value)}>
+                      <Text
+                        style={[
+                          styles.itemText,
+                          selectedStocks.includes(item.value) &&
+                            styles.selectedItemText,
+                        ]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+          </View>
+          <View style={styles.container}>
+            <Text style={styles.label}>Posm Deployed</Text>
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setIsDropdownOpen(prev => !prev)}>
+              <Text style={styles.dropdownText}>
+                {selectedItems.length > 0
+                  ? `Selected: ${selectedItems.join(', ')}`
+                  : 'Select POSM'}
+              </Text>
+            </TouchableOpacity>
+
+            {isDropdownOpen && (
+              <View style={styles.dropdownList}>
+                <FlatList
+                  data={items}
+                  keyExtractor={item => item.value}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.item,
+                        selectedItems.includes(item.value) &&
+                          styles.selectedItem,
+                      ]}
+                      onPress={() => toggleSelection(item.value)}>
+                      <Text
+                        style={[
+                          styles.itemText,
+                          selectedItems.includes(item.value) &&
+                            styles.selectedItemText,
+                        ]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+          </View>
+       
+          <View style={styles.inputContainer}>
+            <Text style={styles.label1}>Shop Facia/Consent Form Pictures</Text>
+
             <View style={styles.iconRow}>
-            <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('storeImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+              <TouchableOpacity
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('storeImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
               <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('storeImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
-              </TouchableOpacity>  <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('storeImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('storeImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
+              </TouchableOpacity>{' '}
+              <TouchableOpacity
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('storeImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
             </View>
-        
 
-          <View style={styles.imagePreviewContainer}>
-            {storeImages.map((image, index) => (
-              <Image
-                key={index}
-                source={{uri: image}}
-                style={styles.imagePreview}
-              />
-            ))}
+            <View style={styles.imagePreviewContainer}>
+              {storeImages.map((image, index) => (
+                <Image
+                  key={index}
+                  source={{uri: image}}
+                  style={styles.imagePreview}
+                />
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label1}>Shelf/Posm Pictures</Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label1}>Shelf/Posm Pictures</Text>
 
-       
             <View style={styles.iconRow2}>
-            <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+              <TouchableOpacity
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('shelfImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
               <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('shelfImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
               <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('shelfImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
               <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
-              </TouchableOpacity>
-              <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
-              </TouchableOpacity>
-              <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => handleImagePick('shelfImages')}>
-              <Image source={CameraIcon} style={styles.cameraIcon} />
+                style={styles.uploadButton}
+                onPress={() => handleImagePick('shelfImages')}>
+                <Image source={CameraIcon} style={styles.cameraIcon} />
               </TouchableOpacity>
             </View>
-         
 
-          <View style={styles.imagePreviewContainer}>
-            {shelfImages.map((image, index) => (
-              <Image
-                key={index}
-                source={{uri: image}}
-                style={styles.imagePreview}
-              />
-            ))}
+            <View style={styles.imagePreviewContainer}>
+              {shelfImages.map((image, index) => (
+                <Image
+                  key={index}
+                  source={{uri: image}}
+                  style={styles.imagePreview}
+                />
+              ))}
+            </View>
           </View>
         </View>
-
-        {/* New Address */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>New Address</Text>
-          <Animated.View
-            style={[styles.inputWrapper, {transform: [{scale: focusAnim}]}]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter New Address"
-              value={newAddress}
-              onChangeText={setNewAddress}
-              onFocus={() =>
-                Animated.spring(focusAnim, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnim, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-        {/* Remarks */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Remarks</Text>
-          <Animated.View
+        <TouchableOpacity style={styles.button1} onPress={handleSubmit}>
+          <Text style={styles.buttonText1}>Submit</Text>
+        </TouchableOpacity>
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={handleCloseModal}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Image source={tickIcon} style={styles.modalImage} />
+              <Text style={styles.thankYouText}>Thank You</Text>
+              <Text style={styles.successText}>
+                You have successfully submitted your store
+              </Text>
+              <TouchableOpacity
+                style={styles.doneButton}
+                onPress={handleCloseModal}>
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+      <View style={styles.buttonContainer}>
+        {/* Home Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigateToHome()}
+          onPressIn={() => setHoveredButton('home')}
+          onPressOut={() => setHoveredButton(null)}
+        >
+        <Image source={homeIcon1} style={styles.storeIcon} />
+        <Text
             style={[
-              styles.inputWrapper,
-              {transform: [{scale: focusAnimRemarks}]}, // Apply scaling animation
-            ]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Remarks"
-              value={remarks}
-              onChangeText={setRemarks}
-              onFocus={() =>
-                Animated.spring(focusAnimRemarks, {
-                  toValue: 1.1,
-                  useNativeDriver: true,
-                }).start()
-              }
-              onBlur={() =>
-                Animated.spring(focusAnimRemarks, {
-                  toValue: 1,
-                  useNativeDriver: true,
-                }).start()
-              }
-            />
-          </Animated.View>
-        </View>
-       
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Live Location</Text>
-          <TouchableOpacity
-            style={styles.locationButton}
-            onPress={fetchLiveLocation}>
-            <Text style={styles.buttonText}>Send Location</Text>
-          </TouchableOpacity>
-          {latitude && longitude && (
-            <Text style={styles.locationText}>
-              Latitude: {latitude}, Longitude: {longitude}
-            </Text>
-          )}
-        </View>
-        {/* Submit Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
+              styles.buttonText,
+              hoveredButton === 'home' && styles.hoveredText,
+            ]}
+          >
+            Home
+          </Text>
+        </TouchableOpacity>
+
+        {/* Stores Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigateToStores()}
+          onPressIn={() => setHoveredButton('stores')}
+          onPressOut={() => setHoveredButton(null)}
+        >
+        <Image source={StoreIcon2} style={styles.storeIcon} />
+        <Text
+            style={[
+              styles.buttonText,
+              hoveredButton === 'stores' && styles.hoveredText,
+            ]}
+          >
+            Stores
+          </Text>
+        </TouchableOpacity>
+
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigateToLogout()}
+          onPressIn={() => setHoveredButton('logout')}
+          onPressOut={() => setHoveredButton(null)}
+        >
+        <Image source={logoutIcon} style={styles.storeIcon} />
+        <Text
+            style={[
+              styles.buttonText,
+              hoveredButton === 'logout' && styles.hoveredText,
+            ]}
+          >
+            Logout
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -689,13 +650,106 @@ const SuccessfulStoreScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: 'white',
-    padding: 20,
+    backgroundColor: '#EAEAEA',
+    flexDirection: 'column',
+    gap: 30,
+    paddingBottom: 80,
+  },
+
+  cardmain: {
+    marginTop:40,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  container_store: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    marginRight: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  titleForn: {
+    color: '#E34234',
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  merchertizername: {
+    fontSize: 14,
+    color: '#888',
+  },
+  labelsContainer: {
+    marginTop: 16,
+    padding: 10,
+  },
+  labelFieldPair: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    justifyContent: 'space-between',
+    borderBottomWidth: 1, // Adds the border
+    borderBottomColor: '#ccc', // Set the color of the border
+    paddingBottom: 8,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  container: {
+    marginBottom: 15,
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#f9f9f9',
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 15,
+  },
+  dropdownList: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginTop: 8,
+    backgroundColor: '#fff',
+    maxHeight: 200,
+  },
+  item: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  itemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedItemText: {
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  field: {
+    fontSize: 16,
+    color: '#333',
+    position: 'absolute',
+    right: '0%',
   },
   card: {
-    backgroundColor: '#376db5',
-    borderRadius: 10,
-    padding: 20,
+    backgroundColor: 'white',
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
     shadowColor: '#E34234',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
@@ -704,19 +758,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   summarycontainer: {
+    backgroundColor: '#E34234',
+    paddingTop: 50,
+    paddingLeft: 20,
+    paddingRight: 20,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  container_store: {
     backgroundColor: 'white',
-    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 30,
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#7393B3',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: 60,
-    paddingLeft: 20,
-    paddingVertical: 10,
+    paddingTop: 30,
+    paddingBottom: 10,
+    borderRadius: 20,
+    marginBottom: 20,
+    top: 70,
+  },
+  profileImage: {
+    borderRadius: 50,
+    height: 60,
+    width: 60,
+    position: 'absolute',
+    transform: [{translateX: 0}, {translateY: -75}],
   },
   storeIcon: {
     height: 30,
@@ -724,10 +788,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: 10,
     color: 'black',
-    marginTop: 10,
-    fontWeight: 'bold',
+  },
+  merchertizername: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: 'black',
   },
   inputContainer: {
     marginBottom: 15,
@@ -736,7 +807,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     fontWeight: '500',
-    color: 'transparent',
+    color: 'black',
   },
   label1: {
     fontSize: 16,
@@ -769,7 +840,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8',
     height: 55,
     paddingHorizontal: 10,
   },
@@ -777,14 +848,15 @@ const styles = StyleSheet.create({
     height: 55,
     width: '100%',
   },
-  button: {
+  button1: {
     backgroundColor: '#E34234',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
+    marginBottom:30
   },
-  buttonText: {
+  buttonText1: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
@@ -799,27 +871,19 @@ const styles = StyleSheet.create({
   },
   iconRow: {
     flexDirection: 'row',
-    gap: 30,
+    gap: 20,
     flexWrap: 'wrap',
-    justifyContent: 'center',
     marginVertical: 15,
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor:'white'
+    paddingLeft: 20,
   },
   iconRow2: {
     flexDirection: 'row',
-    gap: 30,
+    gap: 20,
     flexWrap: 'wrap',
     justifyContent: 'center',
     marginVertical: 15,
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor:'white'
   },
   uploadButton: {
     marginVertical: 15,
@@ -849,8 +913,81 @@ const styles = StyleSheet.create({
   imagePreviewContainer: {
     flexDirection: 'row',
     gap: 20,
-    flexWrap:'wrap'
+    flexWrap: 'wrap',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+    gap: 10,
+  },
+  thankYouText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  successText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  doneButton: {
+    backgroundColor: '#E34234',
+    padding: 10,
+    borderRadius: 10,
+    width: '50%',
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalImage: {
+    height: 50,
+    width: 50,
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    backgroundColor:'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingTop:5,
+    paddingBottom:5,
+    marginTop:10,
+
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  buttonText: {
+    fontSize: 12,
+    color: 'black',
+    fontWeight: '600',
+    marginTop: 5,
+  },
+  hoveredText: {
+    color:  '#E34234',
+  },
+  storeIcon:
+  {
+  height:30,
+  width:30
+  }
 });
 
-export default SuccessfulStoreScreen;
+export default NewStoreScreen;

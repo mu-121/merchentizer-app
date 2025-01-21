@@ -36,16 +36,16 @@ const SignupScreen = ({ navigation }) => {
       <Text style={styles.title}>Sign Up</Text>
       
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>First Name</Text>
+        <Text style={styles.label}>Name</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter First Name"
+          placeholder="Enter Name"
           value={firstName}
           onChangeText={setFirstName}
         />
       </View>
       
-      <View style={styles.inputContainer}>
+      {/* <View style={styles.inputContainer}>
         <Text style={styles.label}>Last Name</Text>
         <TextInput
           style={styles.input}
@@ -53,7 +53,7 @@ const SignupScreen = ({ navigation }) => {
           value={lastName}
           onChangeText={setLastName}
         />
-      </View>
+      </View> */}
       
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
